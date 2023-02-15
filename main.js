@@ -1,42 +1,35 @@
-const data1 = [55000, 48000, 27000, 66000, 90000];
+const FRAME_HEIGHT = 500;
+const FRAME_WIDTH = 500;
+const MARGINS = {left: 100, right: 50, top: 50, bottom: 50};
 
-const frame_height = 500;
-const frame_width = 500;
-const margins  = {left:100, right:100, top:20, bottom:20};
+let data = [55000, 48000, 27000, 66000, 90000];
 
-const max_y = d3.max(data1, (d) => {return d;});
-const min_y = d3.min(data1, (d) => {return d;});
-console.log(min_y);
+const VIS_HEIGHT = FRAME_HEIGHT - MARGINS.top - MARGINS.bottom;
+const VIS_WIDTH = FRAME_WIDTH - MARGINS.left - MARGINS.right;
 
-const y_scale =
-d3.scaleLinear()
-    .domain([0, (max_y + 35000)])
-    .range([0, (frame_height - margins.bottom)]);
+const FRAME3 = d3.select("#vis1")
+                  .append("svg")
+                    .attr("height", FRAME_HEIGHT)
+                    .attr("width", FRAME_WIDTH)
+                    .attr("class", "frame");
 
+const MAX_Y = d3.max(data, (d) => { return d; });
 
-const frame1 =
-d3.select("vis1")
-    .append("svg")
-        .attr("height", frame_height)
-        .attr("width", frame_width)
-        .attr("class", "frame");
+const Y_SCALE = d3.scaleLinear()
+                  .domain([0, MAX_Y])
+                  .range([0, VIS_WIDTH]);
 
-frame1.selectAll("points")
-    .data(data1)
+// Now, we can use X_SCALE to plot our points
+FRAME3.selectAll("points")
+    .data(data)
     .enter()
     .append("circle")
-        .attr("cx", margins.left)
-        .attr("cy", (d) => {return (y_scale(d) + margins.bottom);})
-        .attr("r", 5)
-        .attr("class", "point");
+      .attr("cx", 200)
+      .attr("cy", (d) => { return (Y_SCALE(d) + MARGINS.top); })
+      .attr("r", 10)
+      .attr("class", "point");
 
-frame1.append("axis")
-    .attr("transform", "translate(" + margins.left + "," + margins.bottom + ")")
-    .call(
-        d3.axisLeft()
-            .scale(y_scale)
-            .ticks(10)
-        )
-        .attr("font-size", "20px");
-
-
+FRAME3.append("g")
+      .attr("transform", "translate(" + MARGINS.left +
+            "," + MARGINS.top + ")")
+      .call(d3.axisLeft(Y_SCALE).ticks(10))
